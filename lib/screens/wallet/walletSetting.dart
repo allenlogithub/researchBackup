@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 
 import 'package:web3dart1/config/config.dart';
 import 'package:web3dart1/w3d/wallet.dart';
-import 'package:web3dart1/screens/app.dart';
+import 'package:web3dart1/screens/main.dart';
 
 class WalletSetting extends StatefulWidget {
   const WalletSetting({Key? key}) : super(key: key);
@@ -16,12 +16,6 @@ class WalletSetting extends StatefulWidget {
 class _WalletSettingState extends State<WalletSetting> {
   final TextEditingController _walletPrimaryKeyController =
       TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _walletPrimaryKeyController.text = 'PrivateKey';
-  }
 
   _setWalletPrimaryKey() async {
     appCfg['walletPK'] = _walletPrimaryKeyController.text;
@@ -52,8 +46,7 @@ class _WalletSettingState extends State<WalletSetting> {
             IconButton(
                 onPressed: () async {
                   await _setWalletPrimaryKey();
-                  await Wallet().getBalance2();
-                  Get.to(const App());
+                  Get.to(const Main());
                 },
                 icon: const Icon(Icons.vpn_key)),
           ],

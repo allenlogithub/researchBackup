@@ -1,4 +1,5 @@
 import 'package:web3dart1/network/httpCli.dart';
+import 'package:web3dart1/w3d/wallet.dart';
 
 class NFTApi {
   final HttpCli _httpCli;
@@ -8,9 +9,12 @@ class NFTApi {
   Future<NFTAssets> getNFTAssets() async {
     try {
       final res = await _httpCli.get(
-          'testnets-api.opensea.io',
-          '/api/v1/assets',
-          {'owner': '0xfd6d1b7fb584edce7edb7be15f3c566c010aa11d'});
+        'testnets-api.opensea.io',
+        '/api/v1/assets',
+        {
+          'owner': Wallet().getWalledAddress().toString(),
+        },
+      );
       return NFTAssets.fromMap(res);
     } catch (e) {
       throw e;
