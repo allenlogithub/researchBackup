@@ -73,6 +73,13 @@ class _OwnedNFTState extends State<OwnedNFT> {
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold),
                           ),
+                          Text(
+                            'Token Id:\n' + nft['token_id'] + '\n',
+                            style: GoogleFonts.lato(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold),
+                          ),
                           const Divider(
                             color: Colors.white,
                           ),
