@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import 'package:web3dart1/config/config.dart';
 import 'package:web3dart1/w3d/wallet.dart';
 import 'package:web3dart1/screens/main.dart';
+import 'package:web3dart1/launcher/wallet.dart';
+import 'package:web3dart1/screens/wallet/showWalletAddress.dart';
 
 class WalletSetting extends StatefulWidget {
   const WalletSetting({Key? key}) : super(key: key);
@@ -16,6 +18,7 @@ class WalletSetting extends StatefulWidget {
 class _WalletSettingState extends State<WalletSetting> {
   final TextEditingController _walletPrimaryKeyController =
       TextEditingController();
+  String walletAddress = '';
 
   _setWalletPrimaryKey() async {
     appCfg['walletPK'] = _walletPrimaryKeyController.text;
@@ -34,11 +37,11 @@ class _WalletSettingState extends State<WalletSetting> {
               'Your Private Key?',
               style: GoogleFonts.lato(
                   color: Colors.white,
-                  fontSize: 35,
+                  fontSize: 30,
                   fontWeight: FontWeight.bold),
             ),
             const SizedBox(
-              height: 50,
+              height: 20,
             ),
             TextField(
               controller: _walletPrimaryKeyController,
@@ -49,6 +52,29 @@ class _WalletSettingState extends State<WalletSetting> {
                   Get.to(const Main());
                 },
                 icon: const Icon(Icons.vpn_key)),
+            const SizedBox(
+              height: 50,
+            ),
+            Text(
+              'Wallet Connection',
+              style: GoogleFonts.lato(
+                  color: Colors.white,
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+                onPressed: () async {
+                  await launchWallet().then((value) {
+                    walletAddress = value;
+                  });
+                  Get.to(ShowWalletAddress(
+                    walletAddress: walletAddress,
+                  ));
+                },
+                child: const Text('Connect'))
           ],
         ),
       ),
