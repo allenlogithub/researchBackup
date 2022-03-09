@@ -36,9 +36,11 @@ _walletConnect() async {
   }
 
   print('session.accounts: ' + session!.accounts[0].toString());
-  return session.accounts[0].toString();
+  // return session.accounts[0].toString();
+  return session;
 }
 
-Future<String> launchWallet() async {
+// Future<String> launchWallet() async {
+Future<SessionStatus> launchWallet() async {
   return await _walletConnect();
 }
