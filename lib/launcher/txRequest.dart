@@ -68,7 +68,6 @@ class WalletConnectEthereumCredentials extends CustomTransactionSender {
 
   @override
   Future<String> sendTransaction(Transaction transaction) async {
-    print('sendTransaction ING');
     final hash = await provider.sendTransaction(
       from: transaction.from!.hex,
       to: transaction.to?.hex,
@@ -101,15 +100,17 @@ class EthereumTransactionTester extends TransactionTester {
   }) : super(connector: connector);
 
   factory EthereumTransactionTester() {
-    final ethereum = Web3Client(appCfg['rpcUrl'], Client());
+    final ethereum = Web3Client('https://ropsten.infura.io/', Client());
 
     final connector = WalletConnect(
       bridge: 'https://bridge.walletconnect.org',
-      clientMeta: const PeerMeta(
+      clientMeta: PeerMeta(
         name: 'WalletConnect',
         description: 'WalletConnect Developer App',
         url: 'https://walletconnect.org',
-        icons: ['https://walletconnect.org/walletconnect-logo.png'],
+        icons: [
+          'https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png?alt=media'
+        ],
       ),
     );
 
@@ -124,54 +125,35 @@ class EthereumTransactionTester extends TransactionTester {
 
   @override
   Future<SessionStatus> connect({OnDisplayUriCallback? onDisplayUri}) async {
-    print('connect ING');
-    return connector.connect(chainId: 4, onDisplayUri: onDisplayUri);
+    return connector.connect(chainId: 3, onDisplayUri: onDisplayUri);
   }
 
   @override
   Future<void> disconnect() async {
-    print('disconnect ING');
     await connector.killSession();
   }
 
   @override
   Future<String> signTransaction(SessionStatus session) async {
-    print('signTransaction ING');
     final sender = EthereumAddress.fromHex(session.accounts[0]);
-    final receiver =
-        EthereumAddress.fromHex('0xFd6d1b7FB584edce7EDB7BE15f3c566c010AA11D');
-    print('sender:');
-    print(sender);
-    print('receiver:');
-    print(receiver);
 
     final transaction = Transaction(
-      to: receiver,
       // to: sender,
+      to: EthereumAddress.fromHex('0xFd6d1b7FB584edce7EDB7BE15f3c566c010AA11D'),
       from: sender,
-      gasPrice: EtherAmount.inWei(BigInt.from(230000000)),
       // gasPrice: EtherAmount.inWei(BigInt.one),
-      maxGas: 1000000,
-      value: EtherAmount.fromUnitAndValue(EtherUnit.finney, 10),
+      gasPrice: EtherAmount.inWei(BigInt.from(33333333443)),
+      maxGas: 100000,
+      value: EtherAmount.fromUnitAndValue(EtherUnit.finney, 1),
     );
 
-    print('provider:');
-    print(provider.chainId);
-    print(provider.connector);
     final credentials = WalletConnectEthereumCredentials(provider: provider);
-    print('credentials:');
-    print(credentials);
-    print(credentials.provider);
-    print(credentials.provider.connector);
 
     // Sign the transaction
     final txBytes = await ethereum.sendTransaction(credentials, transaction);
-    print('txBytes:');
-    print(txBytes);
 
     // Kill the session
     connector.killSession();
-    print('connector.killSession');
 
     return txBytes;
   }

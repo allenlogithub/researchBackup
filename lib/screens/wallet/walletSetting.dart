@@ -48,7 +48,8 @@ class _WalletSettingState extends State<WalletSetting> {
   TransactionState _state = TransactionState.disconnected;
   TransactionTester? _transactionTester = EthereumTransactionTester();
   // String walletAddress = '';
-  late SessionStatus session;
+  // late SessionStatus session;
+  SessionStatus? session;
   late String sTx;
 
   String TxHash = 'no TxHash';
@@ -108,7 +109,8 @@ class _WalletSettingState extends State<WalletSetting> {
                     });
                     Get.to(ShowWalletAddress(
                       // walletAddress: walletAddress,
-                      walletAddress: session.accounts[0].toString(),
+                      // walletAddress: session.accounts[0].toString(),
+                      walletAddress: session!.accounts[0].toString(),
                     ));
                   },
                   child: const Text('Connect')),
@@ -126,9 +128,9 @@ class _WalletSettingState extends State<WalletSetting> {
                 height: 20,
               ),
               ElevatedButton(
-                // onPressed: _transactionStateToAction(context, state: _state),
-                onPressed: _transactionStateToAction(context,
-                    state: _state, txHash: TxHash),
+                onPressed: _transactionStateToAction(context, state: _state),
+                // onPressed: _transactionStateToAction(context,
+                //     state: _state, txHash: TxHash),
                 child: Text(
                   _transactionStateToString(state: _state),
                 ),
@@ -175,9 +177,7 @@ class _WalletSettingState extends State<WalletSetting> {
   }
 
   VoidCallback? _transactionStateToAction(BuildContext context,
-      // {required TransactionState state}) {
-      {required TransactionState state,
-      required String txHash}) {
+      {required TransactionState state}) {
     switch (state) {
       // Progress, action disabled
       case TransactionState.connecting:
@@ -191,62 +191,38 @@ class _WalletSettingState extends State<WalletSetting> {
         return () async {
           setState(() => _state = TransactionState.connecting);
           final session = await _transactionTester?.connect(
-              onDisplayUri: (uri) async => {
-                    setState(() => {
-                          _displayUri = uri,
-                          print(uri),
-                        }),
-                    if (await canLaunch(uri))
-                      {await launch(uri)}
-                    else
-                      {throw 'Could not launch $uri'}
-                  });
-          // print('session:');
-          // print(session);
-          // print(session!.chainId);
-          // print(session.rpcUrl);
-          // print('session: end');
+              // onDisplayUri: (uri) => setState(() => _displayUri = uri),
+              onDisplayUri: (uri) async {
+            setState(() => _displayUri = uri);
+            if (await canLaunch(uri)) {
+              await launch(uri);
+            } else {
+              throw 'Could not launch $uri';
+            }
+          });
           if (session == null) {
             print('Unable to connect');
             setState(() => _state = TransactionState.failed);
             return;
           }
 
-          print('session:');
-          print(session);
-          print(session.chainId);
-          print(session.rpcUrl);
-          print('session: end');
-
           setState(() => _state = TransactionState.connected);
           Future.delayed(const Duration(seconds: 1), () async {
             // Initiate the transaction
             setState(() => _state = TransactionState.transferring);
+
             try {
-              String temp = await _transactionTester!.signTransaction(session);
-              // setState(() => _state = TransactionState.success);
-              setState(() {
-                _state = TransactionState.success;
-                txHash = temp;
-                print('++++++++++++++++');
-                print(_state);
-                print(txHash);
-                print('++++++++++++++++');
-              });
+              await _transactionTester?.signTransaction(session);
+              setState(() => _state = TransactionState.success);
             } catch (e) {
               print('Transaction error: $e');
               setState(() => _state = TransactionState.failed);
-              print('++++++++++++++++');
-              print(_state);
-              print(txHash);
-              print('++++++++++++++++');
             }
           });
         };
 
       // Finished
       case TransactionState.success:
-        return null;
       case TransactionState.failed:
         return null;
     }
